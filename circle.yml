@@ -1,0 +1,39 @@
+machine:
+  environment:
+    PROJECT_SANDBOX: your-sandbox-appid # TODO: fill this in!
+    PROJECT_PRODUCTION: your-production-appid # TODO: fill this in!
+    GCLOUD_SECRET_FILE: ${HOME}/gcloud-service-account-secret.json
+
+  java:
+    version: oraclejdk8
+
+  node:
+    version: v6.1.0
+
+dependencies:
+  pre:
+    - sudo /opt/google-cloud-sdk/bin/gcloud --quiet components update
+    - sudo /opt/google-cloud-sdk/bin/gcloud --quiet components install app-engine-java
+    - sudo chown -R ubuntu:ubuntu /home/ubuntu/.config/gcloud
+
+deployment:
+  sandbox:
+    branch: master
+    commands:
+    - echo $GCLOUD_SERVICE_KEY_SANDBOX | base64 --decode > $GCLOUD_SECRET_FILE
+    - gcloud auth activate-service-account --key-file $GCLOUD_SECRET_FILE
+    - gcloud config set project $PROJECT_SANDBOX
+    # the new/old maven plugin shortnames conflict, so we need to use the longform
+    #- mvn appengine:deploy -Dapp.deploy.version=snapshot
+    - mvn com.google.cloud.tools:appengine-maven-plugin:deploy -Dapp.deploy.version=snapshot
+
+  production:
+    branch: production
+    commands:
+    - echo $GCLOUD_SERVICE_KEY_PRODUCTION | base64 --decode > $GCLOUD_SECRET_FILE
+    - gcloud auth activate-service-account --key-file $GCLOUD_SECRET_FILE
+    - gcloud config set project $PROJECT_PRODUCTION
+    #- mvn -P production appengine:deploy -Dapp.deploy.version=${CIRCLE_BUILD_NUM}
+    - mvn -P production com.google.cloud.tools:appengine-maven-plugin:deploy -Dapp.deploy.version=${CIRCLE_BUILD_NUM}
+
+
