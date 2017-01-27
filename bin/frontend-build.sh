@@ -4,7 +4,7 @@ set -x
 
 environment=${1:-"dev"}
 
-war_dir=$PWD/target/freezedriedfolly-1.0-SNAPSHOT
+war_dir="$PWD/target/*-1.0-SNAPSHOT"
 
 rm -rf $war_dir/scripts
 
