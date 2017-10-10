@@ -1,20 +1,24 @@
 #!/usr/bin/env bash
 
-set -x
+set -ex
 
 environment=${1:-"dev"}
 
 war_dir="$PWD/target/*-1.0-SNAPSHOT"
 
-rm -rf $war_dir/scripts
+rm -rf ${war_dir}/dist
 
 cd src/main/frontend
-export PATH="$PATH:node_modules/.bin"
+export PATH="node_modules/.bin:$PATH"
 
-if [ ! -d "node_modules/aurelia-cli" ]; then
+if [ ! -d "node_modules/webpack" ]; then
 	npm install
 fi
 
-au build --env $environment
+if [ "$environment" = "prod" ]; then
+	NODE_ENV='production' webpack	# can't use -p anymore, the old uglify doesn't work with es6
+else
+	webpack
+fi
 
-cp -r scripts $war_dir
+cp -r dist ${war_dir}

@@ -13,18 +13,25 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-		<gstrap.version>0.3</gstrap.version>
+		<gstrap.version>0.37</gstrap.version>
+		<postguice.version>0.8</postguice.version>
 		<gae.version>1.9.48</gae.version>
 		<guice.version>4.1.0</guice.version>
-		<slf4j.version>1.7.22</slf4j.version>
-		<resteasy.version>3.0.19.Final</resteasy.version>
-		<jackson.version>2.8.6</jackson.version>
-		<junit.jupiter.version>5.0.0-M3</junit.jupiter.version>
+		<hibernate.version>5.2.10.Final</hibernate.version>
+		<hibernate-validator.version>5.4.1.Final</hibernate-validator.version>
+		<resteasy.version>3.1.4.Final</resteasy.version>
+		<jackson.version>2.9.1</jackson.version>
+		<slf4j.version>1.7.25</slf4j.version>
+		<junit.jupiter.version>5.0.0</junit.jupiter.version>
+		<junit.platform.version>1.0.0</junit.platform.version>
 
 		<maven.compiler.target>1.8</maven.compiler.target>
 		<maven.compiler.source>1.8</maven.compiler.source>
 
 		<frontend.environment>dev</frontend.environment>
+
+		<flyway.url>jdbc:postgresql:your-local-dev-database</flyway.url>
+		<flyway.user>postgres</flyway.user>
 	</properties>
 
 	<prerequisites>
@@ -35,7 +42,7 @@
 		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
-			<version>1.16.6</version>
+			<version>1.16.18</version>
 			<scope>provided</scope> <!-- excluded from manifest classpath, and excluded from WEB-INF/lib -->
 		</dependency>
 
@@ -48,6 +55,18 @@
 			<groupId>com.voodoodyne.gstrap</groupId>
 			<artifactId>gstrap-test</artifactId>
 			<version>${gstrap.version}</version>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>com.voodoodyne.postguice</groupId>
+			<artifactId>postguice</artifactId>
+			<version>${postguice.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.voodoodyne.postguice</groupId>
+			<artifactId>postguice-test</artifactId>
+			<version>${postguice.version}</version>
 			<scope>test</scope>
 		</dependency>
 
@@ -77,30 +96,46 @@
 		<dependency>
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>
-			<version>21.0</version>
-		</dependency>
-		<dependency>
-			<groupId>joda-time</groupId>
-			<artifactId>joda-time</artifactId>
-			<version>2.9.1</version>
+			<version>22.0</version>
 		</dependency>
 
 		<dependency>
-			<groupId>com.googlecode.objectify</groupId>
-			<artifactId>objectify</artifactId>
-			<version>5.1.13</version>
+			<groupId>org.hibernate</groupId>
+			<artifactId>hibernate-core</artifactId>
+			<version>${hibernate.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.hibernate</groupId>
+			<artifactId>hibernate-validator</artifactId>
+			<version>${hibernate-validator.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.hibernate</groupId>
+			<artifactId>hibernate-java8</artifactId>
+			<version>${hibernate.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.postgresql</groupId>
+			<artifactId>postgresql</artifactId>
+			<version>42.1.3</version>
+		</dependency>
+		<dependency>
+			<groupId>com.google.cloud.sql</groupId>
+			<artifactId>postgres-socket-factory</artifactId>
+			<version>1.0.3</version>
+		</dependency>
+
+		<dependency>
+			<groupId>commons-dbcp</groupId>
+			<artifactId>commons-dbcp</artifactId>
+			<version>1.4</version>
 		</dependency>
 
 		<dependency>
 			<groupId>com.voodoodyne.jackson.jsog</groupId>
 			<artifactId>jackson-jsog</artifactId>
-			<version>1.1</version>
-		</dependency>
-
-		<dependency>
-			<groupId>com.voodoodyne.hattery</groupId>
-			<artifactId>hattery</artifactId>
-			<version>0.15</version>
+			<version>1.1.1</version>
 		</dependency>
 
 		<dependency>
@@ -116,11 +151,6 @@
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-annotations</artifactId>
-			<version>${jackson.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>com.fasterxml.jackson.datatype</groupId>
-			<artifactId>jackson-datatype-joda</artifactId>
 			<version>${jackson.version}</version>
 		</dependency>
 		<dependency>
@@ -166,36 +196,6 @@
 			<version>${slf4j.version}</version>
 		</dependency>
 
-		<dependency>
-			<groupId>com.mitchellbosecke</groupId>
-			<artifactId>pebble</artifactId>
-			<version>2.2.3</version>
-		</dependency>
-
-		<dependency>
-			<groupId>org.apache.commons</groupId>
-			<artifactId>commons-lang3</artifactId>
-			<version>3.5</version>
-		</dependency>
-
-		<dependency>
-			<groupId>commons-codec</groupId>
-			<artifactId>commons-codec</artifactId>
-			<version>1.10</version>
-		</dependency>
-
-		<dependency>
-			<groupId>org.apache.lucene</groupId>
-			<artifactId>lucene-analyzers-common</artifactId>
-			<version>5.3.1</version>
-		</dependency>
-
-		<dependency>
-			<groupId>com.github.scribejava</groupId>
-			<artifactId>scribejava-core</artifactId>
-			<version>3.4.1</version>
-		</dependency>
-
 		<!-- For tests -->
 		<dependency>
 			<groupId>org.junit.jupiter</groupId>
@@ -205,44 +205,16 @@
 		</dependency>
 
 		<dependency>
-			<groupId>org.hamcrest</groupId>
-			<artifactId>java-hamcrest</artifactId>
-			<version>2.0.0.0</version>
+			<groupId>org.assertj</groupId>
+			<artifactId>assertj-core</artifactId>
+			<version>3.8.0</version>
 			<scope>test</scope>
 		</dependency>
 
 		<dependency>
 			<groupId>org.mockito</groupId>
 			<artifactId>mockito-core</artifactId>
-			<version>2.2.9</version>
-			<exclusions>
-				<!-- get rid of old hamcrest version -->
-				<exclusion>
-					<groupId>org.hamcrest</groupId>
-					<artifactId>hamcrest-core</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-
-		<dependency>
-			<groupId>com.google.appengine</groupId>
-			<artifactId>appengine-testing</artifactId>
-			<version>${gae.version}</version>
-			<scope>test</scope>
-		</dependency>
-		<!-- is this necessary? -->
-		<!--<dependency>-->
-			<!--<groupId>com.google.appengine</groupId>-->
-			<!--<artifactId>appengine-api-stubs</artifactId>-->
-			<!--<version>${gae.version}</version>-->
-		<!--</dependency>-->
-
-		<!-- For errands -->
-		<dependency>
-			<groupId>com.google.appengine</groupId>
-			<artifactId>appengine-remote-api</artifactId>
-			<version>${gae.version}</version>
-			<scope>test</scope>
+			<version>2.8.47</version>
 		</dependency>
 	</dependencies>
 
@@ -252,9 +224,24 @@
 
 		<plugins>
 			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>versions-maven-plugin</artifactId>
+				<version>2.4</version>
+				<executions>
+					<execution>
+						<phase>compile</phase>
+						<goals>
+							<goal>display-dependency-updates</goal>
+							<goal>display-plugin-updates</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+
+			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
-				<version>2.19.1</version>
+				<version>2.20</version>
 				<configuration>
 					<systemPropertyVariables>
 						<java.util.logging.config.file>src/test/resources/logging.properties</java.util.logging.config.file>
@@ -265,7 +252,7 @@
 					<dependency>
 						<groupId>org.junit.platform</groupId>
 						<artifactId>junit-platform-surefire-provider</artifactId>
-						<version>1.0.0-M3</version>
+						<version>${junit.platform.version}</version>
 					</dependency>
 					<dependency>
 						<groupId>org.junit.jupiter</groupId>
@@ -276,37 +263,9 @@
 			</plugin>
 
 			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>exec-maven-plugin</artifactId>
-				<version>1.4.0</version>
-				<executions>
-					<execution>
-						<id>frontend-build</id>
-						<phase>prepare-package</phase>
-						<goals>
-							<goal>exec</goal>
-						</goals>
-						<configuration>
-							<executable>bin/frontend-build.sh</executable>
-							<arguments>
-								<argument>${frontend.environment}</argument>
-							</arguments>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-
-			<!-- The java8 runtime seems to only work with the old plugin for now -->
-			<plugin>
-				<groupId>com.google.appengine</groupId>
-				<artifactId>appengine-maven-plugin</artifactId>
-				<version>${gae.version}</version>
-			</plugin>
-			<!-- We can have both installed simultaneously, use the alternative name syntax to call from mvn -->
-			<plugin>
 				<groupId>com.google.cloud.tools</groupId>
 				<artifactId>appengine-maven-plugin</artifactId>
-				<version>1.0.0</version>
+				<version>1.3.1</version>
 				<configuration>
 					<!-- dev appserver configuration (standard environment only) -->
 					<!--
@@ -321,9 +280,28 @@
 					<!--
 					<stage.artifact>target/some-customer-artifact.jar</stage.artifact>
 					-->
+
+					<stage.enableJarClasses>true</stage.enableJarClasses>
+
 					<!-- deploy configuration -->
 					<deploy.promote>true</deploy.promote>
 					<deploy.stopPreviousVersion>true</deploy.stopPreviousVersion>
+					<deployables>
+						<param>${project.build.directory}/appengine-staging/app.yaml</param>
+						<param>${project.build.directory}/appengine-staging/WEB-INF/appengine-generated/queue.yaml</param>
+						<param>${project.build.directory}/appengine-staging/WEB-INF/appengine-generated/cron.yaml</param>
+					</deployables>
+				</configuration>
+			</plugin>
+
+			<plugin>
+				<groupId>org.flywaydb</groupId>
+				<artifactId>flyway-maven-plugin</artifactId>
+				<version>4.2.0</version>
+				<configuration>
+					<locations>
+						<location>filesystem:db/migration</location>
+					</locations>
 				</configuration>
 			</plugin>
 		</plugins>
@@ -331,9 +309,55 @@
 
 	<profiles>
 		<profile>
+			<id>deployed</id>	<!-- When we are actually deploying to GAE -->
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.codehaus.mojo</groupId>
+						<artifactId>exec-maven-plugin</artifactId>
+						<version>1.6.0</version>
+						<executions>
+							<execution>
+								<id>frontend-build</id>
+								<phase>prepare-package</phase>
+								<goals>
+									<goal>exec</goal>
+								</goals>
+								<configuration>
+									<executable>bin/frontend-build.sh</executable>
+									<arguments>
+										<argument>${frontend.environment}</argument>
+									</arguments>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+
+		<profile>
 			<id>production</id>
 			<properties>
 				<frontend.environment>prod</frontend.environment>
+				<flyway.url>jdbc:postgresql://google/houston_prod?useSSL=false&amp;socketFactoryArg=YOURPROJECTID:us-central1:YOURSQLINSTANCE&amp;socketFactory=com.google.cloud.sql.postgres.SocketFactory</flyway.url>
+				<flyway.user>run</flyway.user>
+				<flyway.password>YOUR_PRODUCTION_PASSWORD</flyway.password>
+			</properties>
+		</profile>
+
+		<profile>
+			<id>sandbox</id>
+			<properties>
+				<flyway.url>jdbc:postgresql://google/sandbox?useSSL=false&amp;socketFactoryArg=YOURPROJECTID:us-central1:YOURSQLINSTANCE&amp;socketFactory=com.google.cloud.sql.postgres.SocketFactory</flyway.url>
+				<flyway.password>YOUR_SANDBOX_PASSWORD</flyway.password>
+			</properties>
+		</profile>
+
+		<profile>
+			<id>test</id>
+			<properties>
+				<flyway.url>jdbc:postgresql:your-test-template-database</flyway.url>
 			</properties>
 		</profile>
 	</profiles>

@@ -1,39 +1,63 @@
-machine:
-  environment:
-    PROJECT_SANDBOX: your-sandbox-appid # TODO: fill this in!
-    PROJECT_PRODUCTION: your-production-appid # TODO: fill this in!
-    GCLOUD_SECRET_FILE: ${HOME}/gcloud-service-account-secret.json
+version: 2
 
-  java:
-    version: oraclejdk8
+jobs:
+  build:
+    docker:
+      - image: orbitkit/houston-primary:0.0.2
+      - image: circleci/postgres:9.6
+        environment:
+          POSTGRES_DB: your-test-template-database
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: ""
 
-  node:
-    version: v6.1.0
+    environment:
+      PROJECT_SANDBOX: your-sandbox-appid
+      PROJECT_PRODUCTION: your-production-appid
+      GCLOUD_SECRET_FILE: /tmp/gcloud-service-account-secret.json
 
-dependencies:
-  pre:
-    - sudo /opt/google-cloud-sdk/bin/gcloud --quiet components update
-    - sudo /opt/google-cloud-sdk/bin/gcloud --quiet components install app-engine-java
-    - sudo chown -R ubuntu:ubuntu /home/ubuntu/.config/gcloud
+    working_directory: ~/skeleton
 
-deployment:
-  sandbox:
-    branch: master
-    commands:
-    - echo $GCLOUD_SERVICE_KEY_SANDBOX | base64 --decode > $GCLOUD_SECRET_FILE
-    - gcloud auth activate-service-account --key-file $GCLOUD_SECRET_FILE
-    - gcloud config set project $PROJECT_SANDBOX
-    # the new/old maven plugin shortnames conflict, so we need to use the longform
-    #- mvn appengine:deploy -Dapp.deploy.version=snapshot
-    - mvn com.google.cloud.tools:appengine-maven-plugin:deploy -Dapp.deploy.version=snapshot
+    steps:
+      - checkout
+      - restore_cache:
+          key: skeleton-{{ checksum "pom.xml" }}
+      - run: mvn --batch-mode dependency:go-offline
+      - save_cache:
+          paths:
+            - ~/.m2
+          key: skeleton-{{ checksum "pom.xml" }}
+      - run: |
+          sudo apt-get update && sudo apt-get install google-cloud-sdk google-cloud-sdk-app-engine-java
+          /usr/bin/nodejs --version
+          sudo npm cache clean -f
+          sudo npm install -g n
+          sudo n stable
+          /usr/bin/nodejs --version
+      - run: |
+          mvn --batch-mode -Ptest flyway:migrate -X
+          mvn --batch-mode package
 
-  production:
-    branch: production
-    commands:
-    - echo $GCLOUD_SERVICE_KEY_PRODUCTION | base64 --decode > $GCLOUD_SECRET_FILE
-    - gcloud auth activate-service-account --key-file $GCLOUD_SECRET_FILE
-    - gcloud config set project $PROJECT_PRODUCTION
-    #- mvn -P production appengine:deploy -Dapp.deploy.version=${CIRCLE_BUILD_NUM}
-    - mvn -P production com.google.cloud.tools:appengine-maven-plugin:deploy -Dapp.deploy.version=${CIRCLE_BUILD_NUM}
+      - store_test_results:
+          path: target/surefire-reports
 
+      # Deploy sandbox
+      - deploy:
+          command: |
+            if [ "${CIRCLE_BRANCH}" == "master" ]; then
+              echo $GCLOUD_SERVICE_KEY_SANDBOX | base64 --decode > $GCLOUD_SECRET_FILE
+              gcloud auth activate-service-account --key-file $GCLOUD_SECRET_FILE
+              gcloud config set project $PROJECT_SANDBOX
+              mvn --batch-mode -P sandbox flyway:migrate -X
+              mvn --batch-mode -P deployed,sandbox appengine:deploy -Dapp.deploy.version=snapshot -DskipTests=true
+            fi
 
+      # Deploy production
+      - deploy:
+          command: |
+            if [ "${CIRCLE_BRANCH}" == "production" ]; then
+              echo $GCLOUD_SERVICE_KEY_PRODUCTION | base64 --decode > $GCLOUD_SECRET_FILE
+              gcloud auth activate-service-account --key-file $GCLOUD_SECRET_FILE
+              gcloud config set project $PROJECT_PRODUCTION
+              mvn --batch-mode -P production flyway:migrate -X
+              mvn --batch-mode -P deployed,production appengine:deploy -Dapp.deploy.version=${CIRCLE_BUILD_NUM} -DskipTests=true
+            fi

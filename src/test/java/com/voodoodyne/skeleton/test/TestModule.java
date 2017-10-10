@@ -1,8 +1,9 @@
 package com.voodoodyne.skeleton.test;
 
-import com.google.appengine.api.urlfetch.URLFetchService;
 import com.google.inject.AbstractModule;
-import com.voodoodyne.gstrap.test.BaseURLFetchService;
+import com.voodoodyne.postguice.DatabaseConfig;
+
+import javax.inject.Singleton;
 
 /**
  * Module for unit testing
@@ -10,6 +11,6 @@ import com.voodoodyne.gstrap.test.BaseURLFetchService;
 public class TestModule extends AbstractModule {
 	@Override
 	protected void configure() {
-		this.bind(URLFetchService.class).to(BaseURLFetchService.class);
+		this.bind(DatabaseConfig.class).toProvider(DatabaseConfigMaker.class).in(Singleton.class);
 	}
 }
