@@ -3,7 +3,7 @@ version: 2
 jobs:
   build:
     docker:
-      - image: orbitkit/houston-primary:0.0.2
+      - image: orbitkit/houston-primary:0.0.2 # has recent gcloud to cut down on install time
       - image: circleci/postgres:9.6
         environment:
           POSTGRES_DB: your-test-template-database
