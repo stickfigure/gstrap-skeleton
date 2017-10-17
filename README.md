@@ -1,4 +1,4 @@
-# "Jeffstrap"
+# aka "jeffstrap"
 
 This is the skeleton I use to start postgres-based Google App Engine projects. The stack is:
 
@@ -10,6 +10,8 @@ This is the skeleton I use to start postgres-based Google App Engine projects. T
  * Hibernate, Guice-Persist, Postgres
  * Flyway
  * Some custom utility libraries, gstrap and postguice
+ 
+The 'master' branch is automatically deployed to your sandbox appid. The 'production' branch is automatically deployed to your production appid. Prod deploys are `git checkout production; git merge master; git push`.
 
 You can use this skeleton for Objectify/Cloud Datastore projects by deleting all the hibernate and flyway stuff. The Objectify setup is super easy by comparison.
 
