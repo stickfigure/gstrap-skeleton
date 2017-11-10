@@ -340,7 +340,7 @@
 			<id>production</id>
 			<properties>
 				<frontend.environment>prod</frontend.environment>
-				<flyway.url>jdbc:postgresql://google/houston_prod?useSSL=false&amp;socketFactoryArg=YOURPROJECTID:us-central1:YOURSQLINSTANCE&amp;socketFactory=com.google.cloud.sql.postgres.SocketFactory</flyway.url>
+				<flyway.url>jdbc:postgresql://google/production?useSSL=false&amp;socketFactoryArg=YOURPROJECTID:us-central1:YOURSQLINSTANCE&amp;socketFactory=com.google.cloud.sql.postgres.SocketFactory</flyway.url>
 				<flyway.user>run</flyway.user>
 				<flyway.password>YOUR_PRODUCTION_PASSWORD</flyway.password>
 			</properties>
